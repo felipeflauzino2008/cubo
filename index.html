@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cubo 3×3×3 – 27 Cubos 3D Brancos Separados</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: #000;
+      overflow: hidden;
+      perspective: 2000px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .scene {
+      width: 700px;
+      height: 700px;
+      perspective: 3000px;
+    }
+
+    .cube-group {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(-28deg) rotateY(38deg);
+      transition: transform 0.7s ease-out;
+    }
+
+    .cubie {
+      position: absolute;
+      width: 110px;
+      height: 110px;
+      transform-style: preserve-3d;
+      transform-origin: 50% 50% 55px;
+      box-shadow: 
+        0 15px 40px rgba(0,0,0,0.9),
+        0 5px 15px rgba(0,0,0,0.6);
+    }
+
+    .face {
+      position: absolute;
+      width: 110px;
+      height: 110px;
+      background: #ffffff;
+      box-sizing: border-box;
+      backface-visibility: visible;
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.15);
+    }
+
+    .front  { transform: translateZ(55px); background: linear-gradient(to bottom right, #fff, #f4f4f4); }
+    .back   { transform: rotateY(180deg) translateZ(55px); background: linear-gradient(to bottom right, #f0f0f0, #fff); }
+    .right  { transform: rotateY(90deg) translateZ(55px);  background: linear-gradient(to bottom right, #f8f8f8, #e8e8e8); }
+    .left   { transform: rotateY(-90deg) translateZ(55px); background: linear-gradient(to bottom right, #f4f4f4, #dcdcdc); }
+    .top    { transform: rotateX(90deg) translateZ(55px);  background: linear-gradient(to bottom right, #fff, #f9f9f9); }
+    .bottom { transform: rotateX(-90deg) translateZ(55px); background: linear-gradient(to bottom right, #e8e8e8, #f4f4f4); }
+
+    /* Espaçamento maior para cubos claramente separados */
+    .cubie[data-pos="x-1 y-1 z-1"] { transform: translate3d(-165px, -165px, -165px); }
+    .cubie[data-pos="x0 y-1 z-1"]  { transform: translate3d(   0px, -165px, -165px); }
+    .cubie[data-pos="x1 y-1 z-1"]  { transform: translate3d( 165px, -165px, -165px); }
+    .cubie[data-pos="x-1 y0 z-1"]  { transform: translate3d(-165px,    0px, -165px); }
+    .cubie[data-pos="x0 y0 z-1"]   { transform: translate3d(   0px,    0px, -165px); }
+    .cubie[data-pos="x1 y0 z-1"]   { transform: translate3d( 165px,    0px, -165px); }
+    .cubie[data-pos="x-1 y1 z-1"]  { transform: translate3d(-165px,  165px, -165px); }
+    .cubie[data-pos="x0 y1 z-1"]   { transform: translate3d(   0px,  165px, -165px); }
+    .cubie[data-pos="x1 y1 z-1"]   { transform: translate3d( 165px,  165px, -165px); }
+
+    .cubie[data-pos="x-1 y-1 z0"]  { transform: translate3d(-165px, -165px,    0px); }
+    .cubie[data-pos="x0 y-1 z0"]   { transform: translate3d(   0px, -165px,    0px); }
+    .cubie[data-pos="x1 y-1 z0"]   { transform: translate3d( 165px, -165px,    0px); }
+    .cubie[data-pos="x-1 y0 z0"]   { transform: translate3d(-165px,    0px,    0px); }
+    .cubie[data-pos="x0 y0 z0"]    { transform: translate3d(   0px,    0px,    0px); }
+    .cubie[data-pos="x1 y0 z0"]    { transform: translate3d( 165px,    0px,    0px); }
+    .cubie[data-pos="x-1 y1 z0"]   { transform: translate3d(-165px,  165px,    0px); }
+    .cubie[data-pos="x0 y1 z0"]    { transform: translate3d(   0px,  165px,    0px); }
+    .cubie[data-pos="x1 y1 z0"]    { transform: translate3d( 165px,  165px,    0px); }
+
+    .cubie[data-pos="x-1 y-1 z1"]  { transform: translate3d(-165px, -165px,  165px); }
+    .cubie[data-pos="x0 y-1 z1"]   { transform: translate3d(   0px, -165px,  165px); }
+    .cubie[data-pos="x1 y-1 z1"]   { transform: translate3d( 165px, -165px,  165px); }
+    .cubie[data-pos="x-1 y0 z1"]   { transform: translate3d(-165px,    0px,  165px); }
+    .cubie[data-pos="x0 y0 z1"]    { transform: translate3d(   0px,    0px,  165px); }
+    .cubie[data-pos="x1 y0 z1"]    { transform: translate3d( 165px,    0px,  165px); }
+    .cubie[data-pos="x-1 y1 z1"]   { transform: translate3d(-165px,  165px,  165px); }
+    .cubie[data-pos="x0 y1 z1"]    { transform: translate3d(   0px,  165px,  165px); }
+    .cubie[data-pos="x1 y1 z1"]    { transform: translate3d( 165px,  165px,  165px); }
+
+    /* Iluminação inferior forte e dramática */
+    .scene::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 90%, rgba(255,255,240,0.35) 0%, transparent 65%);
+      pointer-events: none;
+      z-index: 5;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scene">
+    <div class="cube-group" id="group"></div>
+  </div>
+
+  <script>
+    const group = document.getElementById('group');
+    const positions = [
+      'x-1 y-1 z-1', 'x0 y-1 z-1', 'x1 y-1 z-1',
+      'x-1 y0 z-1',  'x0 y0 z-1',  'x1 y0 z-1',
+      'x-1 y1 z-1',  'x0 y1 z-1',  'x1 y1 z-1',
+      'x-1 y-1 z0',  'x0 y-1 z0',  'x1 y-1 z0',
+      'x-1 y0 z0',   'x0 y0 z0',   'x1 y0 z0',
+      'x-1 y1 z0',   'x0 y1 z0',   'x1 y1 z0',
+      'x-1 y-1 z1',  'x0 y-1 z1',  'x1 y-1 z1',
+      'x-1 y0 z1',   'x0 y0 z1',   'x1 y0 z1',
+      'x-1 y1 z1',   'x0 y1 z1',   'x1 y1 z1'
+    ];
+
+    positions.forEach(pos => {
+      const cubie = document.createElement('div');
+      cubie.className = 'cubie';
+      cubie.dataset.pos = pos;
+
+      ['front','back','right','left','top','bottom'].forEach(cls => {
+        const face = document.createElement('div');
+        face.className = `face ${cls}`;
+        cubie.appendChild(face);
+      });
+
+      group.appendChild(cubie);
+    });
+
+    // Rotação com mouse / toque
+    let dragging = false;
+    let lastX = 0, lastY = 0;
+    let rx = -28, ry = 38;
+
+    function update() {
+      group.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+    }
+
+    document.addEventListener('mousedown', e => {
+      dragging = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      group.style.transition = 'none';
+    });
+
+    document.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      ry += (e.clientX - lastX) * 0.7;
+      rx -= (e.clientY - lastY) * 0.7;
+      update();
+      lastX = e.clientX;
+      lastY = e.clientY;
+    });
+
+    document.addEventListener('mouseup', () => { dragging = false; group.style.transition = 'transform 0.7s ease-out'; });
+    document.addEventListener('mouseleave', () => dragging = false);
+
+    // Touch
+    document.addEventListener('touchstart', e => {
+      dragging = true;
+      lastX = e.touches[0].clientX;
+      lastY = e.touches[0].clientY;
+      group.style.transition = 'none';
+      e.preventDefault();
+    }, {passive: false});
+
+    document.addEventListener('touchmove', e => {
+      if (!dragging) return;
+      e.preventDefault();
+      ry += (e.touches[0].clientX - lastX) * 0.9;
+      rx -= (e.touches[0].clientY - lastY) * 0.9;
+      update();
+      lastX = e.touches[0].clientX;
+      lastY = e.touches[0].clientY;
+    }, {passive: false});
+
+    update();
+  </script>
+
+</body>
+</html>
